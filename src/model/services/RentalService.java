@@ -1,16 +1,21 @@
 package model.services;
 
+import java.time.Duration;
+
+import model.entities.CarRental;
+import model.entities.Invoice;
+
 public class RentalService {
 	
 	private Double pricePerHour;
 	private Double pricePerDay;
 	
-	private BrasilTaxService tax;
+	private BrasilTaxService taxService;
 
 	public RentalService(Double pricePerHour, Double pricePerDay, BrasilTaxService tax) {
 		this.pricePerHour = pricePerHour;
 		this.pricePerDay = pricePerDay;
-		this.tax = tax;
+		this.taxService = tax;
 	}
 
 	public Double getPricePerHour() {
@@ -30,10 +35,28 @@ public class RentalService {
 	}
 
 	public BrasilTaxService getTax() {
-		return tax;
+		return taxService;
 	}
 
 	public void setTax(BrasilTaxService tax) {
-		this.tax = tax;
+		this.taxService = tax;
+	}
+	
+	public void processInvoice (CarRental carRental) {
+		double minutes = Duration.between(carRental.getStart(), carRental.getFinish()).toMinutes();
+		double duration = minutes/60;
+		
+		double basicPayment;
+		
+		if (duration <= 12.0) {
+			basicPayment = Math.ceil(duration) * getPricePerHour(); 
+		}
+		else {
+			basicPayment = Math.ceil(duration/24.0) * getPricePerDay();
+		}	
+		
+		double tax = taxService.tax(basicPayment);
+					
+		carRental.setInvoice(new Invoice(basicPayment, tax));
 	}
 }

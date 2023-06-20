@@ -2,7 +2,7 @@ package model.services;
 
 public class BrasilTaxService {
 	
-	public Double tax (Double amount) {
+	public Double tax (double amount) {
 		if (amount <= 100){
 			return amount * 0.20;	
 		}
